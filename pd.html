@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="pstyle.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Dashboard</h2>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#overview">Overview</a></li>
+            <li><a href="#tasks">Tasks</a></li>
+            <li><a href="#analytics">Analytics</a></li>
+            <li><a href="#settings">Settings</a></li>
+        </ul>
+    </aside>
+
+    <!-- Sidebar Toggle for Mobile -->
+    <button id="toggle-sidebar">☰</button>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header>
+            <h1>Welcome, User!</h1>
+            <div class="profile">
+                <span>👤</span>
+            </div>
+        </header>
+
+        <!-- Overview Cards -->
+        <section id="overview" class="cards">
+            <div class="card">
+                <h3>Tasks Completed</h3>
+                <p>24</p>
+            </div>
+            <div class="card">
+                <h3>Projects</h3>
+                <p>5</p>
+            </div>
+            <div class="card">
+                <h3>Messages</h3>
+                <p>12</p>
+            </div>
+            <div class="card">
+                <h3>Notifications</h3>
+                <p>3</p>
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section id="tasks" class="tasks">
+            <h2>My Tasks</h2>
+            <ul>
+                <li>Finish project report <span class="status done">Done</span></li>
+                <li>Update website UI <span class="status pending">Pending</span></li>
+                <li>Review emails <span class="status done">Done</span></li>
+                <li>Team meeting <span class="status pending">Pending</span></li>
+            </ul>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="analytics">
+            <h2>Analytics</h2>
+            <p>Here you can visualize your stats.</p>
+            <canvas id="tasksChart" width="400" height="200"></canvas>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="settings">
+            <h2>Settings</h2>
+            <p>Manage your preferences and account here.</p>
+        </section>
+    </main>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- JavaScript -->
+    <script>
+        // Sidebar toggle
+        const toggleBtn = document.getElementById('toggle-sidebar');
+        const sidebar = document.querySelector('.sidebar');
+        toggleBtn.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+        // Task toggle
+        const taskItems = document.querySelectorAll('.tasks li .status');
+        taskItems.forEach(status => {
+            status.addEventListener('click', () => {
+                if (status.classList.contains('done')) {
+                    status.classList.remove('done');
+                    status.classList.add('pending');
+                    status.textContent = 'Pending';
+                } else {
+                    status.classList.remove('pending');
+                    status.classList.add('done');
+                    status.textContent = 'Done';
+                }
+                updateChart(); // Update chart when tasks change
+            });
+        });
+
+        // Chart.js - Tasks Chart
+        const ctx = document.getElementById('tasksChart').getContext('2d');
+        const chartData = { done: 0, pending: 0 };
+        function updateChart() {
+            chartData.done = document.querySelectorAll('.status.done').length;
+            chartData.pending = document.querySelectorAll('.status.pending').length;
+            tasksChart.data.datasets[0].data = [chartData.done, chartData.pending];
+            tasksChart.update();
+        }
+        const tasksChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Completed', 'Pending'],
+                datasets: [{
+                    label: 'Tasks',
+                    data: [document.querySelectorAll('.status.done').length, document.querySelectorAll('.status.pending').length],
+                    backgroundColor: ['rgba(39, 174, 96, 0.7)', 'rgba(230, 126, 34, 0.7)'],
+                    borderColor: ['rgba(39, 174, 96, 1)', 'rgba(230, 126, 34, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    title: { display: true, text: 'Tasks Overview' }
+                },
+                scales: { y: { beginAtZero: true, stepSize: 5 } }
+            }
+        });
+    </script>
+</body>
+</html>
